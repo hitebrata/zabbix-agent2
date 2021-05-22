@@ -51,9 +51,9 @@ UserParameter=services.systemctl,echo "{\"data\":[$(systemctl list-unit-files --
 
 
 
-
+**
 ### Option: UserParameter
-#       User-defined parameter to monitor. There can be several user-defined parameters.
+#       User-defined parameter to monitor. There can be several user-defined parameters.**
 #       Format: UserParameter=<key>,<shell command>
 #       See 'zabbix_agentd' directory for examples.
 #
