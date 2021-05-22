@@ -1,0 +1,10 @@
+---
+# vars file for zabbix-agent2-ec2instance
+zabbix_agent_server_ip: 172.16.0.101
+zabbix_agent_server_active_ip: 172.16.0.101
+zabbix-agent-port: 10050
+zabbix-agent2-ver: "zabbix-5.0.2"
+zbx_agent_dir: "/active/zabbix"
+go_dir: "/usr/local"
+admin_group: "zabbix"
+user: "zabbix"

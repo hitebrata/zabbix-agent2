@@ -1,0 +1,24 @@
+---
+# handlers file for zabbix-agent2-ec2instance
+#- name: restart the zabbix-agent2
+#  gather_facts: no
+#  become: yes
+#  tasks:
+#     - name: Get running zabbix-agent2 service form remote host
+#       ignore_errors: yes
+##       shell: "ps -ef | grep zabbix_agent2 | grep -Ev grep | awk '{print $2}'"
+ #      register: running_processes
+#     - name: Kill running processes
+#       ignore_errors: yes
+#       shell: "sudo kill {{ item }}"
+#       with_items: "{{ running_processes.stdout_lines }}"
+#     - wait_for:
+#             path: "/proc/{{ item }}/status"
+#             state: absent
+#       with_items: "{{ running_processes.stdout_lines }}"
+#       ignore_errors: yes
+#       register: killing_processes
+#     - name: Force kill stuck processes
+#       ignore_errors: yes
+#       shell: "sudo kill -9 {{ item }}"
+#       with_items: "{{ killing_processes.results | select('failed') | map(attribute='item') | list }}"

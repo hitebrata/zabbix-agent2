@@ -1,0 +1,83 @@
+---
+# tasks file for zabbix-agent2-ec2instance
+#install all dependencies
+#check the internet 
+#download zabbix5.0 agent.zip
+#download https://golang.org/dl/go1.13.15.linux-amd64.tar.gz;
+#remote-Create user and groups for zabbix agent2
+#remote-if internet is not avl then copy the local file to target servers
+#remote-server=extract the file
+#remote-add zabbix server ip to zabbix_agent2.conf
+#copy the script file zabbix-agent2.sh to /usr/bin/zabbix-agent2.sh
+#remote-run the server=zabbix-agent2
+
+# tasks file for zabbix-agent2-ec2instance
+- name: check if google.com:443 is accessible
+  wait_for:
+        host: google.com
+        port: 443
+        state: started
+        delay: 0
+        timeout: 1
+- name: install dependencies wget pcre-devel gcc zlib-devel
+  package: "{{ item }}"
+  with_items:
+            - wget
+            - pcre-devel
+            - gcc
+            - zlib-devel
+            
+- name: check the /active directory
+  file:
+         state: directory
+         path:  "{{ zbx_agent_dir }}"
+         mode: '0755'
+         owner: redhat
+         group: redhat
+         recurse: yes
+- name: Extract the zabbix-agent2.zip to the target servers
+  ansible.builtin.unarchive:
+     src: ./zabbix-5.0.2.tar.gz
+     dest: "{{ zbx_agent_dir }}"
+
+- name: Extract go1.13.15.linux-amd64.tar.gz to the target servers
+  ansible.builtin.unarchive:
+     src: ./go1.13.15.linux-amd64.tar.gz
+     dest: "{{ go_dir }}"
+- name: Export go PATH
+  shell: "{{ item }}"
+  with_items:
+           - cd {{ go_dir }}
+           - echo "export PATH=$PATH:/usr/local/go/bin" >> /etc/profile
+           - source /etc/profile
+           - cd {{ zbx_agent_dir }}/{{ zabbix-agent2-ver }}
+           - ./configure --enable-agent2
+           - make install
+  register: export_path
+- debug:
+    var: export_path.stdout_lines
+- name: Create users and groups
+  group:
+    name: "{{ admin_group }}"
+    comment: "Zabbix Monitoring User"
+    state: present
+
+- name: Create Users Task
+  user:
+      name: "{{ user }}"
+      comment: "Zabbix Monitoring System"
+      group: "{{ admin_group }}"
+      state: present
+      shell: /sbin/nologin
+      system: no
+      createhome: yes
+      home: /usr/lib/zabbix
+- name: Copy file with owner and permissions
+  ansible.builtin.copy:
+    src: ./zabbix-agent2.sh
+    dest: /usr/bin/zabbix-agent2.sh
+    owner: ec2-user
+    group: ec2-user
+    mode: '0755'
+- name: start the zabbix-agent2 service
+  shell: "start-zabbix"
